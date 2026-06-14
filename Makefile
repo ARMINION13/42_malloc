@@ -1,19 +1,9 @@
-LIB_NAME = libasm.a
-NAME = libasm_test
-
-NA = nasm
-NA_FLAGS = -f elf64
-AR = ar
-AR_FLAGS = rcs
+NAME = malloc
 GCC = gcc
 GCC_FLAGS = -Wall -Wextra -Werror
 
-SRCS = ft_strlen.s ft_strcpy.s ft_strcmp.s ft_write.s ft_read.s ft_strdup.s
-OBJS = $(SRCS:.s=.o)
-
-
-%.o: %.s
-	$(NA) $(NA_FLAGS) $< -o $@
+SRCS = ./src/malloc.c ./src/free.c ./src/realloc.c
+OBJS = ./src/malloc.o ./src/free.o ./src/realloc.o
 
 all: $(OBJS)
 	@echo "                                     "
@@ -21,24 +11,9 @@ all: $(OBJS)
 	@echo "# - - - - - - - A L L - - - - - - - #"
 	@echo "# - - - - - - - - - - - - - - - - - #"
 	@echo "                                     "
+
+	$(GCC) $(GCC_FLAGS) $(OBJS) main.c -o $(NAME)
 	
-	$(AR) $(AR_FLAGS) $(LIB_NAME) $(OBJS)
-	ranlib $(LIB_NAME)
-
-
-test: $(LIB_NAME)
-	@echo "                                     "
-	@echo "# - - - - - - - - - - - - - - - - - #"
-	@echo "# - - - - - - T E S T - - - - - - - #"
-	@echo "# - - - - - - - - - - - - - - - - - #"
-	@echo "                                     "
-
-	$(GCC) $(GCC_FLAGS) main.c -L. -lasm -o $(NAME)
-	
-	@echo "./$(NAME)"
-	@echo "                                     "
-	@echo "                                     "
-	@./$(NAME)
 
 clean:
 	@echo "                                     "
