@@ -1,21 +1,18 @@
 #include "./headers/malloc.h"
 
-Chunk *start = NULL;
-
-void heap_visualize() 
+void prueba_int(int *prueba)
 {
-    printf("\n--- ESTADO DEL HEAP ---\n");
-    Chunk *curr = start;
-    while (curr != NULL) 
-    {
-        printf("[%s | size: %zu bytes | addr: %p]\n", curr->free ? "FREE" : "USED", curr->size, (void*)curr);
-        curr = curr->next;
-    }
-    printf("------------------------\n");
+    *prueba = 42;
 }
 
 int main ()
 {
+    int *prueba = NULL;
+
     heap_visualize();
+    prueba = ft_malloc(100);
+    printf("%i\n", *prueba);
+    prueba_int(prueba);
+    printf("%i\n", *prueba);
     return 0;
 }

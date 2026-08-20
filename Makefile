@@ -21,8 +21,6 @@ clean:
 	@echo "# - - - - - - C L E A N - - - - - - #"
 	@echo "# - - - - - - - - - - - - - - - - - #"
 	@echo "                                     "
-	@echo "rm -f $(LIB_NAME)"
-	@rm -f $(LIB_NAME)
 	@echo "rm -f $(NAME)"
 	@rm -f $(NAME)
 	@echo "rm -f $(OBJS)"

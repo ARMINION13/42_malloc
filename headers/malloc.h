@@ -2,6 +2,7 @@
 # define MALLOC_H
 # include <stdlib.h>
 # include <stdio.h>
+# include <unistd.h>
 # include <sys/mman.h>
 
 typedef struct  Heap {
@@ -26,6 +27,10 @@ typedef struct  Chunk {
 
 }               Chunk;
 
-void            *malloc(size_t size);
+void            *ft_malloc(size_t size);
+void            ft_free(void *ptr)
+void            heap_visualize();
+Chunk           *get_start_chunck();
+
 
 #endif
