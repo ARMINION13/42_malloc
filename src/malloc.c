@@ -7,6 +7,16 @@ Chunk *get_start_chunck()
     return start;
 }
 
+void ft_coalesce()
+{
+    Chunk *curr = start;
+    while (curr != NULL && curr->next != NULL)
+    {
+        
+    }
+
+}
+
 void heap_visualize() 
 {
     printf("\n--- ESTADO DEL HEAP ---\n");

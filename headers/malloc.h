@@ -27,6 +27,9 @@ typedef struct  Chunk {
 
 }               Chunk;
 
+#define TINY 128
+#define SMALL 1024
+
 void            *ft_malloc(size_t size);
 void            ft_free(void *ptr)
 void            heap_visualize();
