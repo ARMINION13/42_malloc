@@ -1,6 +1,7 @@
 #include "../headers/malloc.h"
 
-static Chunk *start = NULL;
+static Heap *TINY = NULL;
+static Heap *SMALL = NULL;
 
 Chunk *get_start_chunck()
 {
@@ -15,18 +16,6 @@ void ft_coalesce()
         
     }
 
-}
-
-void heap_visualize() 
-{
-    printf("\n--- ESTADO DEL HEAP ---\n");
-    Chunk *curr = start;
-    while (curr != NULL) 
-    {
-        printf("[%s | size: %zu bytes | addr: %p]\n", curr->free ? "FREE" : "USED", curr->size, (void*)curr);
-        curr = curr->next;
-    }
-    printf("------------------------\n");
 }
 
 Chunk *find_free_chunk(size_t size)
@@ -45,55 +34,87 @@ Chunk *find_free_chunk(size_t size)
     return NULL;
 }
 
-Chunk *create_chunk(Chunk *ptr)
+void  link_heap(Heap *new, Heap *list)
 {
-    ptr = mmap(NULL, size + sizeof(Chunk), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-    
-    if (ptr == MAP_FAILED)
-        return NULL;
+    Heap *it;
 
-    ptr->prev_size = 0;
-    ptr->size = size;
-    ptr->free = 1;
-    ptr->next = NULL;
-    ptr->prev = NULL;
+    it = list;
 
-    return ptr;
-}
-
-void add_chunk(Chunk *new)
-{
-    if (!start)
-    {
-        start = new;
+    if (new == NULL)
         return;
-    }
+    while (it->next != NULL)
+        it = it->next;
 
-    Chunk *curr = start;
-    while (curr != NULL && curr->next != NULL) 
-        curr = curr->next;
-    
-    new->prev_size = curr->size;
-    new->prev = curr;
-    curr->next = new;
+    it->next = new;
+    new->prev = list;
 
     return;
+}
+
+void unlink_heap(Heap *old)
+{
+    Heap *prev;
+    Heap *next;
+
+    prev = old->prev;
+    next = old->next;
+
+    prev->next = next;
+    next->prev = prev;
+
+    return;
+}
+
+Chunk *create_chunk(Chunk *ptr)
+{
+
+}
+
+Heap *create_zone(size_t nbr_pages)
+{
+    Heap *ptr_h;
+    Chunk *ptr_c;
+    size_t page_size;
+
+    page_size = sysconf(_SC_PAGESIZ); // tamaño de la pagina de mi sistema operativo
+    ptr_h = mmap(NULL, page_size * nbr_pages, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+
+    if (ptr_h == MAP_FAILED)
+        return NULL;
+
+    // Inicializacion del header del heap o zona
+    ptr_h->size = page_size * nbr_pages;
+    ptr_h->free_size = ptr_h->size - HEAP_HEADER_SIZE;
+    ptr_h->next = NULL;
+    ptr_h->prev = NULL;
+
+    // Inicializacion del header del chunk
+    ptr_c = ptr_h + 1;
+    ptr_c->prev_size = 0;
+    ptr_c->size = ptr_h->free_size - CHUNK_HEADER_SIZE;
+    ptr_c->next = NULL;
+    ptr_c->prev = NULL;
+
+
+    return ptr_h;
 }
 
 void *ft_malloc(size_t size)
 {
     Chunk *ptr = NULL;
+    int it = 0;
 
     if (!size)
         return NULL;
 
-    if (!(ptr = find_free_chunk(size)))
-        ptr = create_chunk(ptr);
+    if (size <= TINY_CHUNK && TINY == NULL)
+        TINY = create_zone(TINY_HEAP);
+    else if (size <= SMALL_CHUNK && SMALL == NULL)
+        SMALL = create_zone(SMALL_HEAP);
 
-    if (ptr == NULL)
-        return ptr;
+    if (!(ptr = find_free_chunk(size)))
+        link_heap(create_zone(size), TINY);
     
-    add_chunk(ptr);
     heap_visualize();
     return (void *)(ptr + 1);
 }
