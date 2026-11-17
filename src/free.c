@@ -25,6 +25,15 @@ void    ft_coalesce(Chunk *ptr_c)
 void    free(void *ptr)
 {
     Chunk *ptr_c = ((Chunk *)ptr) - 1;
+    Heap  *ptr_h = NULL;
+    
+    if (get_flags(ptr_c->size) == 0x4)
+    {
+        ptr_h = ((Heap *)ptr_c) - 1;
+        unlink_heap(ptr_h);
+        munmap(ptr_h, ptr_h->size);
+        return;
+    }
 
     link_free_chunk(ptr_c);
     ptr_c->size = set_flags(0x2, ptr_c->size);

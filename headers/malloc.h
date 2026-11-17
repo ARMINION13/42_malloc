@@ -55,10 +55,11 @@ size_t          unflag_size(size_t size);
 size_t          set_flags(size_t hex, size_t size);
 size_t          get_flags(size_t size);
 void            fix_free_bin(Heap *ptr_h);
-void            link_heap(Heap *new, Heap *list);
+void            link_heap(Heap *new, Heap **list);
 void            unlink_chunk(Chunk *old);
 void            unlink_heap(Heap *old);
-size_t          parse_size(size_t size);
+size_t          parse_chunk_size(size_t size);
+size_t          parse_heap_size(size_t size);
 bool            is_free(Chunk *chunk);
 void            link_free_chunk(Chunk *new);
 

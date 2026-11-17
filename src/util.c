@@ -60,17 +60,22 @@ void fix_free_bin(Heap *ptr_h)
     ptr_h->free_bin = aux;
 }
 
-void  link_heap(Heap *new, Heap *list)
+void  link_heap(Heap *new, Heap **list)
 {
     Heap *it;
 
-    it = list;
-    if (!new || !list)
+    it = *list;
+    if (!new)
         return;
+    if (!*list)
+    {
+        *list = new;
+        return;
+    }
     while (it->fwd != NULL)
         it = it->fwd;
     it->fwd = new;
-    new->bck = list;
+    new->bck = *list;
 }
 
 void  link_free_chunk(Chunk *new)
@@ -104,10 +109,10 @@ void unlink_chunk(Chunk *old)
         return;
     bck = old->bck;
     fwd = old->fwd;
-    if(bck)
+    if (bck)
         bck->fwd = fwd;
-    if(fwd)
-        fwd->bck = bck;
+    if (fwd)
+        fwd->bck = bck;    
 }
 
 void unlink_heap(Heap *old)
@@ -150,7 +155,7 @@ void unlink_heap(Heap *old)
 //     write(2, &buffer[i], 31 - i);
 // }
 
-size_t parse_size(size_t size)
+size_t parse_chunk_size(size_t size)
 {
     size_t aux;
 
@@ -158,6 +163,27 @@ size_t parse_size(size_t size)
     if (size % 16)
         aux = (aux + 1);
     aux = (aux * 16) + CHUNK_HEADER_SIZE;
+
+    return (aux);
+}
+
+size_t parse_heap_size(size_t size)
+{
+    size_t aux = 0;
+    size_t offset = 0;
+
+    offset = sysconf(_SC_PAGESIZE); // tamaño de la pagina de mi sistema operativo
+    if (offset < 0)
+        return -1;
+    if (size <= TINY_CHUNK)
+        return (offset * TINY_HEAP);
+    else if (size <= SMALL_CHUNK)
+        return (offset * SMALL_HEAP);
+
+    aux = size / offset;
+    if (size % offset)
+        aux = (aux + 1);
+    aux = (aux * offset);
 
     return (aux);
 }
